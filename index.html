@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Cape Orlando Property Manager</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Workspace navigation">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" role="img">
+              <path d="M6 14.2 16 6l10 8.2v12.3a1.5 1.5 0 0 1-1.5 1.5h-5.3v-7.9h-6.4V28H7.5A1.5 1.5 0 0 1 6 26.5V14.2Z"></path>
+              <path d="M10.3 12.6v4.6h11.4v-4.6L16 8l-5.7 4.6Z"></path>
+            </svg>
+          </div>
+          <div>
+            <strong>Cape Orlando</strong>
+            <span>Property operations</span>
+          </div>
+        </div>
+
+        <nav class="nav-list" id="sectionNav"></nav>
+
+        <div class="sidebar-foot">
+          <div class="mini-map" aria-label="Portfolio occupancy map">
+            <svg viewBox="0 0 280 160" role="img">
+              <defs>
+                <linearGradient id="coast" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#d7efe8"></stop>
+                  <stop offset="1" stop-color="#eaf4f0"></stop>
+                </linearGradient>
+              </defs>
+              <rect width="280" height="160" rx="10" fill="#f7faf9"></rect>
+              <path d="M0 113 C47 92 77 119 118 102 C151 88 172 49 221 58 C246 63 263 78 280 76 L280 160 L0 160 Z" fill="url(#coast)"></path>
+              <path d="M38 35h55v38H38zM121 22h46v52h-46zM194 35h49v41h-49zM76 92h50v34H76zM166 92h56v34h-56z" fill="#fff" stroke="#9ab7ad" stroke-width="3"></path>
+              <circle cx="64" cy="54" r="7" fill="#1f6f5b"></circle>
+              <circle cx="144" cy="48" r="7" fill="#c48125"></circle>
+              <circle cx="218" cy="55" r="7" fill="#1f6f5b"></circle>
+              <circle cx="101" cy="109" r="7" fill="#1f6f5b"></circle>
+              <circle cx="194" cy="109" r="7" fill="#8a4b4f"></circle>
+            </svg>
+          </div>
+          <button class="ghost-button" id="seedButton" type="button">
+            <svg class="icon" aria-hidden="true"><use href="#icon-refresh"></use></svg>
+            Reset demo data
+          </button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Portfolio command center</p>
+            <h1 id="pageTitle">Dashboard</h1>
+          </div>
+          <div class="top-actions">
+            <label class="search-box">
+              <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+              <input id="globalSearch" type="search" placeholder="Search records">
+            </label>
+            <button class="primary-button" id="addButton" type="button">
+              <svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg>
+              <span id="addLabel">Add record</span>
+            </button>
+          </div>
+        </header>
+
+        <section class="metrics-grid" id="metricsGrid" aria-label="Portfolio metrics"></section>
+
+        <section class="workspace">
+          <div class="workspace-head">
+            <div>
+              <h2 id="sectionTitle">Dashboard</h2>
+              <p id="sectionSubtitle">Current portfolio health and upcoming work.</p>
+            </div>
+            <div class="filter-row" id="filterRow"></div>
+          </div>
+          <div id="contentArea"></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="record-dialog" id="recordDialog">
+      <form method="dialog" id="recordForm">
+        <div class="dialog-head">
+          <div>
+            <p class="eyebrow" id="dialogEyebrow">New record</p>
+            <h2 id="dialogTitle">Add record</h2>
+          </div>
+          <button class="icon-button" value="cancel" type="button" id="closeDialog" aria-label="Close dialog">
+            <svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg>
+          </button>
+        </div>
+        <div class="form-grid" id="formFields"></div>
+        <div class="dialog-actions">
+          <button class="ghost-button" value="cancel" type="button" id="cancelDialog">Cancel</button>
+          <button class="primary-button" value="default" type="submit">Save</button>
+        </div>
+      </form>
+    </dialog>
+
+    <svg aria-hidden="true" class="sprite">
+      <symbol id="icon-building" viewBox="0 0 24 24"><path d="M3 21h18M5 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16M16 8h1a2 2 0 0 1 2 2v11M8 7h3M8 11h3M8 15h3"></path></symbol>
+      <symbol id="icon-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"></path></symbol>
+      <symbol id="icon-wallet" viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 1 0-4h14v4M4 7v12a2 2 0 0 0 2 2h14V7H4ZM16 14h.01"></path></symbol>
+      <symbol id="icon-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6M8 13h8M8 17h6"></path></symbol>
+      <symbol id="icon-tool" viewBox="0 0 24 24"><path d="m14.7 6.3 3-3a3.5 3.5 0 0 1 3.9 4.8l-3.2 3.2a3.5 3.5 0 0 1-4.1.6L7.1 19.1a2 2 0 0 1-2.8-2.8l7.2-7.2a3.5 3.5 0 0 1 .6-4.1Z"></path></symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"></path></symbol>
+      <symbol id="icon-message" viewBox="0 0 24 24"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"></path></symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24"><path d="m21 21-4.3-4.3M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z"></path></symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"></path></symbol>
+      <symbol id="icon-edit" viewBox="0 0 24 24"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 16h10l1-16M10 11v6M14 11v6"></path></symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.3-6.4L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.3 6.4L3 16M3 21v-5h5"></path></symbol>
+    </svg>
+
+    <script src="app.js"></script>
+  </body>
+</html>
