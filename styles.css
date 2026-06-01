@@ -40,6 +40,10 @@ button {
   display: none;
 }
 
+.hidden {
+  display: none !important;
+}
+
 .icon {
   width: 18px;
   height: 18px;
@@ -49,6 +53,70 @@ button {
   stroke-linejoin: round;
   stroke-width: 2;
   flex: 0 0 auto;
+}
+
+.login-shell {
+  align-items: center;
+  background: #edf3f0;
+  display: flex;
+  min-height: 100vh;
+  justify-content: center;
+  padding: 22px;
+}
+
+.login-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 22px;
+  max-width: 520px;
+  padding: 24px;
+  width: 100%;
+}
+
+.login-brand {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+}
+
+.login-form {
+  display: grid;
+  gap: 16px;
+}
+
+.login-copy,
+.login-message {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+.login-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.demo-otp {
+  background: #fff8ea;
+  border: 1px solid #e7d2a8;
+  border-radius: var(--radius);
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.demo-otp span {
+  color: #6d4411;
+  font-size: 1.65rem;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.demo-otp small {
+  color: #6d5a3d;
+  line-height: 1.4;
 }
 
 .app-shell {
