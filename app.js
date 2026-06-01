@@ -32,6 +32,18 @@ const contractDefaults = {
   depositDueDays: 3
 };
 
+const escrowPresets = [
+  {
+    id: "landsel",
+    label: "Landsel Title Agency, Inc.",
+    name: "Landsel Title Agency, Inc.",
+    contact: "Amanda Wilkins",
+    address: "3208 Chiquita Blvd S #215, Cape Coral, FL 33914",
+    phone: "239.205.6373 Ext. 105",
+    email: "awilkins@landsel.com"
+  }
+];
+
 const contractTemplate = {
   url: "assets/vacant-land-contract-2026.pdf",
   fields: {
@@ -60,10 +72,197 @@ const contractTemplate = {
     acceptanceDate: "text_34yeni",
     closingDate: "text_35brqq",
     initialDepositToEscrow: "checkbox_185cimt",
-    unitLot: "checkbox_181meaq"
+    unitLot: "checkbox_181meaq",
+    checkboxes: {
+      financingCash: "checkbox_177tvld",
+      financingContingent: "checkbox_176prqq",
+      newFinancing: "checkbox_175secp",
+      fixedRate: "checkbox_174eeiw",
+      adjustableRate: "checkbox_173hjds",
+      sellerFinancing: "checkbox_172eazw",
+      sellerFinancingFirst: "checkbox_171pvzi",
+      sellerFinancingSecond: "checkbox_170swhk",
+      mortgageAssumption: "checkbox_169claa",
+      taxesInsurance: "checkbox_168otlv",
+      assumptionFixed: "checkbox_167fksk",
+      assumptionOther: "checkbox_166stjl",
+      assumptionWillEscalate: "checkbox_165nit",
+      assumptionWillNotEscalate: "checkbox_164amxq",
+      assignReleased: "checkbox_161zjak",
+      assignNotReleased: "checkbox_160dwlp",
+      assignNotAllowed: "checkbox_163xyvc",
+      statutoryWarrantyDeed: "checkbox_162emgn",
+      specialWarrantyDeed: "checkbox_159ztke",
+      otherDeed: "checkbox_158vrdw",
+      titleEvidenceSeller: "checkbox_155ojkr",
+      titleEvidenceBuyer: "checkbox_156vxqy",
+      titleEvidenceWithin: "checkbox_154ctjl",
+      titleEvidenceAtLeast: "checkbox_157cpro",
+      titleCommitment: "checkbox_153woyh",
+      abstractTitle: "checkbox_152wwcd",
+      dueDiligencePeriod: "checkbox_151jtpd",
+      noDueDiligence: "checkbox_150kqfz",
+      ccclWaiver: "checkbox_149akxm",
+      assessmentSeller: "checkbox_148niog",
+      assessmentBuyer: "checkbox_147endp",
+      addendaBackup: "checkbox_146yhcp",
+      addendaKickOut: "checkbox_145fgwq",
+      addendaHoa: "checkbox_144kri",
+      addendaOther: "checkbox_143grdt"
+    }
   },
   checkedValue: "/Yes_figa"
 };
+
+const contractCheckboxGroups = [
+  {
+    key: "financingMain",
+    label: "6. Financing",
+    options: [
+      ["", "Leave blank"],
+      ["financingCash", "Buyer will pay cash; no financing contingency"],
+      ["financingContingent", "Contract is contingent on buyer obtaining financing"]
+    ]
+  },
+  {
+    key: "financingType",
+    label: "6(1)-(3). Financing type",
+    options: [
+      ["", "Leave blank"],
+      ["newFinancing", "New financing"],
+      ["sellerFinancing", "Seller financing"],
+      ["mortgageAssumption", "Mortgage assumption"]
+    ]
+  },
+  {
+    key: "financingRate",
+    label: "6(1). Interest rate",
+    options: [
+      ["", "Leave blank"],
+      ["fixedRate", "Fixed rate"],
+      ["adjustableRate", "Adjustable / prevailing interest rate"]
+    ]
+  },
+  {
+    key: "sellerFinancingPriority",
+    label: "6(2). Seller financing priority",
+    options: [
+      ["", "Leave blank"],
+      ["sellerFinancingFirst", "First purchase money note and mortgage"],
+      ["sellerFinancingSecond", "Second purchase money note and mortgage"]
+    ]
+  },
+  {
+    key: "mortgageAssumptionCosts",
+    label: "6(3). Mortgage assumption costs",
+    options: [
+      ["", "Leave blank"],
+      ["taxesInsurance", "Includes taxes and insurance"]
+    ]
+  },
+  {
+    key: "mortgageAssumptionRate",
+    label: "6(3). Assumption rate",
+    options: [
+      ["", "Leave blank"],
+      ["assumptionFixed", "Fixed"],
+      ["assumptionOther", "Other"]
+    ]
+  },
+  {
+    key: "mortgageEscalation",
+    label: "6(3). Escalation",
+    options: [
+      ["", "Leave blank"],
+      ["assumptionWillEscalate", "Will escalate"],
+      ["assumptionWillNotEscalate", "Will not escalate"]
+    ]
+  },
+  {
+    key: "assignability",
+    label: "7. Assignability",
+    options: [
+      ["", "Leave blank"],
+      ["assignReleased", "May assign and be released from liability"],
+      ["assignNotReleased", "May assign but not be released"],
+      ["assignNotAllowed", "May not assign"]
+    ]
+  },
+  {
+    key: "deedType",
+    label: "8. Deed type",
+    options: [
+      ["", "Leave blank"],
+      ["statutoryWarrantyDeed", "Statutory warranty deed"],
+      ["specialWarrantyDeed", "Special warranty deed"],
+      ["otherDeed", "Other deed"]
+    ]
+  },
+  {
+    key: "titleEvidencePayer",
+    label: "8(a). Title evidence expense",
+    options: [
+      ["", "Leave blank"],
+      ["titleEvidenceSeller", "Seller's expense"],
+      ["titleEvidenceBuyer", "Buyer's expense"]
+    ]
+  },
+  {
+    key: "titleEvidenceTiming",
+    label: "8(a). Title evidence timing",
+    options: [
+      ["", "Leave blank"],
+      ["titleEvidenceWithin", "Within set days after effective date"],
+      ["titleEvidenceAtLeast", "At least set days before closing"]
+    ]
+  },
+  {
+    key: "titleEvidenceType",
+    label: "8(a). Title evidence type",
+    options: [
+      ["", "Leave blank"],
+      ["titleCommitment", "Title insurance commitment"],
+      ["abstractTitle", "Abstract of title"]
+    ]
+  },
+  {
+    key: "inspectionPeriod",
+    label: "9(a). Inspections",
+    options: [
+      ["", "Leave blank"],
+      ["dueDiligencePeriod", "Due diligence period"],
+      ["noDueDiligence", "No due diligence period"]
+    ]
+  },
+  {
+    key: "ccclWaiver",
+    label: "9(d). Coastal construction control line",
+    options: [
+      ["", "Leave blank"],
+      ["ccclWaiver", "Buyer waives CCCL affidavit or survey"]
+    ]
+  },
+  {
+    key: "specialAssessments",
+    label: "10(d). Special assessment installments",
+    options: [
+      ["", "Buyer if left blank"],
+      ["assessmentSeller", "Seller pays installments due after closing"],
+      ["assessmentBuyer", "Buyer pays installments due after closing"]
+    ]
+  },
+  {
+    key: "addenda",
+    label: "22. Addenda",
+    options: [
+      ["", "No addenda selected"],
+      ["addendaBackup", "A. Back-up Contract"],
+      ["addendaKickOut", "B. Kick Out Clause"],
+      ["addendaHoa", "C. HOA Addendum"],
+      ["addendaOther", "D. Other"]
+    ]
+  }
+];
 
 const schemas = {
   properties: {
@@ -296,6 +495,13 @@ const seedData = {
       initialDeposit: 2000,
       acceptanceDate: "2026-05-29",
       closingDate: "2026-06-22",
+      escrowPreset: "landsel",
+      escrowName: contractDefaults.escrowName,
+      escrowContact: contractDefaults.escrowContact,
+      escrowAddress: contractDefaults.escrowAddress,
+      escrowPhone: contractDefaults.escrowPhone,
+      escrowEmail: contractDefaults.escrowEmail,
+      checkboxChoices: {},
       createdAt: "2026-06-01"
     }
   ]
@@ -480,7 +686,14 @@ function renderContracts() {
     propertyId: contractDefaults.propertyId,
     initialDeposit: contractDefaults.initialDeposit,
     acceptanceDate: todayInputValue(),
-    closingDate: addDaysInputValue(21)
+    closingDate: addDaysInputValue(21),
+    escrowPreset: "landsel",
+    escrowName: contractDefaults.escrowName,
+    escrowContact: contractDefaults.escrowContact,
+    escrowAddress: contractDefaults.escrowAddress,
+    escrowPhone: contractDefaults.escrowPhone,
+    escrowEmail: contractDefaults.escrowEmail,
+    checkboxChoices: {}
   };
 
   els.contentArea.innerHTML = `
@@ -542,7 +755,39 @@ function renderContracts() {
               <label for="contractClosing">Closing date</label>
               <input id="contractClosing" name="closingDate" type="date" value="${escapeHtml(latest.closingDate || addDaysInputValue(21))}">
             </div>
+            <div class="field full">
+              <label for="escrowPreset">Escrow agent</label>
+              <input id="escrowPreset" name="escrowName" list="escrowAgentOptions" value="${escapeHtml(contractEscrowValue(latest, "escrowName"))}">
+              <datalist id="escrowAgentOptions">
+                ${escrowPresets.map((preset) => `<option value="${escapeHtml(preset.name)}">${escapeHtml(preset.label)}</option>`).join("")}
+              </datalist>
+              <span class="field-help">Choose Landsel or type a custom escrow agent.</span>
+            </div>
+            <div class="field">
+              <label for="escrowContact">Escrow contact</label>
+              <input id="escrowContact" name="escrowContact" type="text" value="${escapeHtml(contractEscrowValue(latest, "escrowContact"))}">
+            </div>
+            <div class="field">
+              <label for="escrowPhone">Escrow phone</label>
+              <input id="escrowPhone" name="escrowPhone" type="text" value="${escapeHtml(contractEscrowValue(latest, "escrowPhone"))}">
+            </div>
+            <div class="field full">
+              <label for="escrowAddress">Escrow address</label>
+              <input id="escrowAddress" name="escrowAddress" type="text" value="${escapeHtml(contractEscrowValue(latest, "escrowAddress"))}">
+            </div>
+            <div class="field full">
+              <label for="escrowEmail">Escrow email</label>
+              <input id="escrowEmail" name="escrowEmail" type="email" value="${escapeHtml(contractEscrowValue(latest, "escrowEmail"))}">
+            </div>
           </div>
+
+          <section class="template-options">
+            <h3>Template checkbox choices</h3>
+            <div class="form-grid">
+              ${contractCheckboxGroups.map((group) => checkboxChoiceControl(group, latest)).join("")}
+            </div>
+          </section>
+
           <div class="contract-actions">
             <button class="primary-button" type="submit">
               <svg class="icon" aria-hidden="true"><use href="#icon-file"></use></svg>
@@ -577,6 +822,38 @@ function renderContracts() {
   `;
 }
 
+function checkboxChoiceControl(group, contract) {
+  const selected = contract?.checkboxChoices?.[group.key] || "";
+
+  return `
+    <div class="field full">
+      <label for="choice-${group.key}">${escapeHtml(group.label)}</label>
+      <select id="choice-${group.key}" name="${escapeHtml(group.key)}">
+        ${group.options.map(([value, label]) => `
+          <option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>
+        `).join("")}
+      </select>
+    </div>
+  `;
+}
+
+function applyEscrowPresetFromName(name) {
+  const preset = escrowPresets.find((item) => item.name === name);
+  if (!preset) return;
+
+  const updates = {
+    escrowContact: preset.contact,
+    escrowPhone: preset.phone,
+    escrowAddress: preset.address,
+    escrowEmail: preset.email
+  };
+
+  Object.entries(updates).forEach(([fieldName, value]) => {
+    const field = document.querySelector(`[name="${fieldName}"]`);
+    if (field) field.value = value;
+  });
+}
+
 function saveContractDraft(event) {
   event.preventDefault();
   const draft = draftFromContractForm(event.target);
@@ -592,6 +869,9 @@ function draftFromContractForm(form) {
   const township = data.township.trim() || contractDefaults.township;
   const range = data.range.trim() || contractDefaults.range;
   const county = data.county.trim() || contractDefaults.county;
+  const checkboxChoices = Object.fromEntries(
+    contractCheckboxGroups.map((group) => [group.key, data[group.key] || ""])
+  );
 
   return {
     id: crypto.randomUUID(),
@@ -608,6 +888,12 @@ function draftFromContractForm(form) {
     initialDeposit: Number(data.initialDeposit || contractDefaults.initialDeposit),
     acceptanceDate: data.acceptanceDate || todayInputValue(),
     closingDate: data.closingDate || addDaysInputValue(21),
+    escrowName: data.escrowName.trim() || contractDefaults.escrowName,
+    escrowContact: data.escrowContact.trim() || contractDefaults.escrowContact,
+    escrowAddress: data.escrowAddress.trim() || contractDefaults.escrowAddress,
+    escrowPhone: data.escrowPhone.trim() || contractDefaults.escrowPhone,
+    escrowEmail: data.escrowEmail.trim() || contractDefaults.escrowEmail,
+    checkboxChoices,
     createdAt: todayInputValue()
   };
 }
@@ -621,6 +907,11 @@ function contractDraft(contract) {
   const legalDescription = contractValue(contract, "legalDescription");
   const sectionTownshipRange = locationSummary(contract);
   const propertyId = contractValue(contract, "propertyId");
+  const escrowName = contractEscrowValue(contract, "escrowName");
+  const escrowContact = contractEscrowValue(contract, "escrowContact");
+  const escrowAddress = contractEscrowValue(contract, "escrowAddress");
+  const escrowPhone = contractEscrowValue(contract, "escrowPhone");
+  const escrowEmail = contractEscrowValue(contract, "escrowEmail");
 
   return `
     <article class="contract-preview" id="contractPreview">
@@ -663,11 +954,11 @@ function contractDraft(contract) {
       <div class="contract-clause">
         <strong>3. Escrow agent.</strong>
         <div class="contract-grid">
-          <div><span>Name</span><strong>${escapeHtml(contractDefaults.escrowName)}</strong></div>
-          <div><span>Contact</span><strong>${escapeHtml(contractDefaults.escrowContact)}</strong></div>
-          <div><span>Address</span><strong>${escapeHtml(contractDefaults.escrowAddress)}</strong></div>
-          <div><span>Phone</span><strong>${escapeHtml(contractDefaults.escrowPhone)}</strong></div>
-          <div><span>Email</span><strong>${escapeHtml(contractDefaults.escrowEmail)}</strong></div>
+          <div><span>Name</span><strong>${escapeHtml(escrowName)}</strong></div>
+          <div><span>Contact</span><strong>${escapeHtml(escrowContact)}</strong></div>
+          <div><span>Address</span><strong>${escapeHtml(escrowAddress)}</strong></div>
+          <div><span>Phone</span><strong>${escapeHtml(escrowPhone)}</strong></div>
+          <div><span>Email</span><strong>${escapeHtml(escrowEmail)}</strong></div>
         </div>
       </div>
 
@@ -742,11 +1033,11 @@ async function fillTemplatePdf(contract) {
   setPdfText(form, contractTemplate.fields.county, contract.county);
   setPdfText(form, contractTemplate.fields.propertyId, contract.propertyId);
   setPdfText(form, contractTemplate.fields.purchasePrice, moneyWithCents(price));
-  setPdfText(form, contractTemplate.fields.escrowName, contractDefaults.escrowName);
-  setPdfText(form, contractTemplate.fields.escrowContact, contractDefaults.escrowContact);
-  setPdfText(form, contractTemplate.fields.escrowAddress, contractDefaults.escrowAddress);
-  setPdfText(form, contractTemplate.fields.escrowPhone, contractDefaults.escrowPhone);
-  setPdfText(form, contractTemplate.fields.escrowEmail, contractDefaults.escrowEmail);
+  setPdfText(form, contractTemplate.fields.escrowName, contractEscrowValue(contract, "escrowName"));
+  setPdfText(form, contractTemplate.fields.escrowContact, contractEscrowValue(contract, "escrowContact"));
+  setPdfText(form, contractTemplate.fields.escrowAddress, contractEscrowValue(contract, "escrowAddress"));
+  setPdfText(form, contractTemplate.fields.escrowPhone, contractEscrowValue(contract, "escrowPhone"));
+  setPdfText(form, contractTemplate.fields.escrowEmail, contractEscrowValue(contract, "escrowEmail"));
   setPdfText(form, contractTemplate.fields.depositDueDays, String(contractDefaults.depositDueDays));
   setPdfText(form, contractTemplate.fields.initialDeposit, moneyWithCents(deposit));
   setPdfText(form, contractTemplate.fields.balanceToClose, moneyWithCents(balance));
@@ -754,8 +1045,17 @@ async function fillTemplatePdf(contract) {
   setPdfText(form, contractTemplate.fields.closingDate, `ON OR BEFORE ${dateInputToContractDate(contract.closingDate)}`);
   setPdfRadio(form, contractTemplate.fields.initialDepositToEscrow);
   setPdfRadio(form, contractTemplate.fields.unitLot);
+  applyContractCheckboxChoices(form, contract.checkboxChoices);
   form.updateFieldAppearances();
   return pdfDoc.save();
+}
+
+function applyContractCheckboxChoices(form, checkboxChoices = {}) {
+  const choices = new Set(Object.values(checkboxChoices).filter(Boolean));
+  choices.forEach((choice) => {
+    const fieldName = contractTemplate.fields.checkboxes[choice];
+    if (fieldName) setPdfRadio(form, fieldName);
+  });
 }
 
 function setPdfText(form, fieldName, value) {
@@ -817,6 +1117,10 @@ function dateInputToContractDate(value) {
 }
 
 function contractValue(contract, key) {
+  return contract?.[key] || contractDefaults[key] || "";
+}
+
+function contractEscrowValue(contract, key) {
   return contract?.[key] || contractDefaults[key] || "";
 }
 
@@ -1052,6 +1356,12 @@ els.contentArea.addEventListener("click", (event) => {
 els.contentArea.addEventListener("submit", (event) => {
   if (event.target.id === "contractForm") {
     saveContractDraft(event);
+  }
+});
+
+els.contentArea.addEventListener("change", (event) => {
+  if (event.target.name === "escrowName") {
+    applyEscrowPresetFromName(event.target.value);
   }
 });
 
