@@ -248,6 +248,10 @@ const seedData = {
       id: "contract-sample",
       buyer: contractDefaults.sampleBuyer,
       price: 31000,
+      propertyAddress: contractDefaults.propertyAddress,
+      legalDescription: contractDefaults.legalDescription,
+      sectionTownshipRange: contractDefaults.sectionTownshipRange,
+      propertyId: contractDefaults.propertyId,
       initialDeposit: 2000,
       acceptanceDate: "2026-05-29",
       closingDate: "2026-06-22",
@@ -425,6 +429,10 @@ function renderContracts() {
   const latest = state.contracts?.[state.contracts.length - 1] || {
     buyer: "",
     price: "",
+    propertyAddress: contractDefaults.propertyAddress,
+    legalDescription: contractDefaults.legalDescription,
+    sectionTownshipRange: contractDefaults.sectionTownshipRange,
+    propertyId: contractDefaults.propertyId,
     initialDeposit: contractDefaults.initialDeposit,
     acceptanceDate: todayInputValue(),
     closingDate: addDaysInputValue(21)
@@ -443,6 +451,23 @@ function renderContracts() {
             <div class="field">
               <label for="contractPrice">Purchase price</label>
               <input id="contractPrice" name="price" type="number" min="0" step="100" value="${escapeHtml(latest.price)}" required>
+            </div>
+            <div class="field full">
+              <label for="contractPropertyAddress">Contract property address</label>
+              <input id="contractPropertyAddress" name="propertyAddress" type="text" value="${escapeHtml(contractValue(latest, "propertyAddress"))}" required>
+            </div>
+            <div class="field">
+              <label for="contractPropertyId">Real Property ID</label>
+              <input id="contractPropertyId" name="propertyId" type="text" value="${escapeHtml(contractValue(latest, "propertyId"))}">
+              <span class="field-help">Use this for MLS or county lookup when connected to a property data source.</span>
+            </div>
+            <div class="field">
+              <label for="contractLocation">Location</label>
+              <input id="contractLocation" name="sectionTownshipRange" type="text" value="${escapeHtml(contractValue(latest, "sectionTownshipRange"))}">
+            </div>
+            <div class="field full">
+              <label for="contractLegalDescription">Legal description</label>
+              <textarea id="contractLegalDescription" name="legalDescription">${escapeHtml(contractValue(latest, "legalDescription"))}</textarea>
             </div>
             <div class="field">
               <label for="contractDeposit">Initial deposit</label>
@@ -473,7 +498,7 @@ function renderContracts() {
           <h3>Defaults from sample</h3>
           <div class="detail-list">
             <div class="detail-row"><span>Seller</span><span>${escapeHtml(contractDefaults.seller)}</span></div>
-            <div class="detail-row"><span>Property</span><span>${escapeHtml(contractDefaults.propertyAddress)}</span></div>
+            <div class="detail-row"><span>Sample property</span><span>${escapeHtml(contractDefaults.propertyAddress)}</span></div>
             <div class="detail-row"><span>Escrow agent</span><span>${escapeHtml(contractDefaults.escrowName)}</span></div>
             <div class="detail-row"><span>Escrow contact</span><span>${escapeHtml(contractDefaults.escrowContact)}</span></div>
           </div>
@@ -495,6 +520,10 @@ function saveContractDraft(event) {
     id: crypto.randomUUID(),
     buyer: data.buyer.trim(),
     price: Number(data.price || 0),
+    propertyAddress: data.propertyAddress.trim() || contractDefaults.propertyAddress,
+    legalDescription: data.legalDescription.trim() || contractDefaults.legalDescription,
+    sectionTownshipRange: data.sectionTownshipRange.trim() || contractDefaults.sectionTownshipRange,
+    propertyId: data.propertyId.trim() || contractDefaults.propertyId,
     initialDeposit: Number(data.initialDeposit || contractDefaults.initialDeposit),
     acceptanceDate: data.acceptanceDate || todayInputValue(),
     closingDate: data.closingDate || addDaysInputValue(21),
@@ -511,6 +540,10 @@ function contractDraft(contract) {
   const deposit = Number(contract.initialDeposit || contractDefaults.initialDeposit);
   const balance = Math.max(price - deposit, 0);
   const buyer = contract.buyer || "[Buyer name]";
+  const propertyAddress = contractValue(contract, "propertyAddress");
+  const legalDescription = contractValue(contract, "legalDescription");
+  const sectionTownshipRange = contractValue(contract, "sectionTownshipRange");
+  const propertyId = contractValue(contract, "propertyId");
 
   return `
     <article class="contract-preview" id="contractPreview">
@@ -518,7 +551,7 @@ function contractDraft(contract) {
       <header class="contract-doc-head">
         <div>
           <p class="eyebrow">Vacant land contract draft</p>
-          <h2>${escapeHtml(contractDefaults.propertyAddress)}</h2>
+          <h2>${escapeHtml(propertyAddress)}</h2>
         </div>
         <div class="contract-id">Generated ${dateLabel(contract.createdAt || todayInputValue())}</div>
       </header>
@@ -533,10 +566,10 @@ function contractDraft(contract) {
       </div>
 
       <div class="contract-grid">
-        <div><span>Property address</span><strong>${escapeHtml(contractDefaults.propertyAddress)}</strong></div>
-        <div><span>Legal description</span><strong>${escapeHtml(contractDefaults.legalDescription)}</strong></div>
-        <div><span>Location</span><strong>${escapeHtml(contractDefaults.sectionTownshipRange)}</strong></div>
-        <div><span>Real Property ID</span><strong>${escapeHtml(contractDefaults.propertyId)}</strong></div>
+        <div><span>Property address</span><strong>${escapeHtml(propertyAddress)}</strong></div>
+        <div><span>Legal description</span><strong>${escapeHtml(legalDescription)}</strong></div>
+        <div><span>Location</span><strong>${escapeHtml(sectionTownshipRange)}</strong></div>
+        <div><span>Real Property ID</span><strong>${escapeHtml(propertyId)}</strong></div>
       </div>
 
       <div class="contract-clause">
@@ -587,6 +620,10 @@ function contractDraft(contract) {
       </div>
     </article>
   `;
+}
+
+function contractValue(contract, key) {
+  return contract?.[key] || contractDefaults[key] || "";
 }
 
 function renderRecords(schema) {
