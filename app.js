@@ -264,6 +264,16 @@ const contractCheckboxGroups = [
   }
 ];
 
+const executedContractCheckboxDefaults = [
+  "financingCash",
+  "assignNotAllowed",
+  "statutoryWarrantyDeed",
+  "titleEvidenceBuyer",
+  "titleEvidenceAtLeast",
+  "titleCommitment",
+  "dueDiligencePeriod"
+];
+
 const schemas = {
   properties: {
     title: "Properties",
@@ -501,7 +511,7 @@ const seedData = {
       escrowAddress: contractDefaults.escrowAddress,
       escrowPhone: contractDefaults.escrowPhone,
       escrowEmail: contractDefaults.escrowEmail,
-      checkboxChoices: {},
+      checkboxChoices: executedContractCheckboxDefaults,
       createdAt: "2026-06-01"
     }
   ]
@@ -693,7 +703,7 @@ function renderContracts() {
     escrowAddress: contractDefaults.escrowAddress,
     escrowPhone: contractDefaults.escrowPhone,
     escrowEmail: contractDefaults.escrowEmail,
-    checkboxChoices: {}
+    checkboxChoices: executedContractCheckboxDefaults
   };
 
   els.contentArea.innerHTML = `
@@ -823,17 +833,19 @@ function renderContracts() {
 }
 
 function checkboxChoiceControl(group, contract) {
-  const selected = contract?.checkboxChoices?.[group.key] || "";
+  const selected = selectedCheckboxChoices(contract);
+  const options = group.options.filter(([value]) => value);
 
   return `
-    <div class="field full">
-      <label for="choice-${group.key}">${escapeHtml(group.label)}</label>
-      <select id="choice-${group.key}" name="${escapeHtml(group.key)}">
-        ${group.options.map(([value, label]) => `
-          <option value="${escapeHtml(value)}" ${value === selected ? "selected" : ""}>${escapeHtml(label)}</option>
-        `).join("")}
-      </select>
-    </div>
+    <fieldset class="checkbox-group">
+      <legend>${escapeHtml(group.label)}</legend>
+      ${options.map(([value, label]) => `
+        <label class="checkbox-option">
+          <input type="checkbox" name="checkboxChoices" value="${escapeHtml(value)}" ${selected.has(value) ? "checked" : ""}>
+          <span>${escapeHtml(label)}</span>
+        </label>
+      `).join("")}
+    </fieldset>
   `;
 }
 
@@ -869,9 +881,7 @@ function draftFromContractForm(form) {
   const township = data.township.trim() || contractDefaults.township;
   const range = data.range.trim() || contractDefaults.range;
   const county = data.county.trim() || contractDefaults.county;
-  const checkboxChoices = Object.fromEntries(
-    contractCheckboxGroups.map((group) => [group.key, data[group.key] || ""])
-  );
+  const checkboxChoices = new FormData(form).getAll("checkboxChoices");
 
   return {
     id: crypto.randomUUID(),
@@ -1051,7 +1061,7 @@ async function fillTemplatePdf(contract) {
 }
 
 function applyContractCheckboxChoices(form, checkboxChoices = {}) {
-  const choices = new Set(Object.values(checkboxChoices).filter(Boolean));
+  const choices = selectedCheckboxChoices({ checkboxChoices });
   choices.forEach((choice) => {
     const fieldName = contractTemplate.fields.checkboxes[choice];
     if (fieldName) setPdfRadio(form, fieldName);
@@ -1122,6 +1132,17 @@ function contractValue(contract, key) {
 
 function contractEscrowValue(contract, key) {
   return contract?.[key] || contractDefaults[key] || "";
+}
+
+function selectedCheckboxChoices(contract) {
+  const raw = contract?.checkboxChoices;
+  const values = Array.isArray(raw)
+    ? raw
+    : raw && typeof raw === "object"
+      ? Object.values(raw)
+      : [];
+  const selected = values.filter(Boolean);
+  return new Set(selected.length ? selected : executedContractCheckboxDefaults);
 }
 
 function locationSummary(contract) {

@@ -689,6 +689,33 @@ h3 {
   resize: vertical;
 }
 
+.checkbox-group {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+}
+
+.checkbox-group legend {
+  color: var(--ink);
+  font-weight: 800;
+  padding: 0 4px;
+}
+
+.checkbox-option {
+  align-items: flex-start;
+  display: flex;
+  gap: 9px;
+  line-height: 1.35;
+}
+
+.checkbox-option input {
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
