@@ -8,8 +8,25 @@ const sections = [
   { id: "leases", label: "Leases", icon: "file" },
   { id: "maintenance", label: "Maintenance", icon: "tool" },
   { id: "reminders", label: "Reminders", icon: "bell" },
+  { id: "contracts", label: "Contracts", icon: "file" },
   { id: "communications", label: "Communications", icon: "message" }
 ];
+
+const contractDefaults = {
+  seller: "Max L McKinnon",
+  sampleBuyer: "Tra My Land, LLC",
+  propertyAddress: "2033 NW 9th TER, Cape Coral, FL 33993",
+  legalDescription: "CAPE CORAL UNIT 52 BLK 3795 PB 19 PG 51 LOTS 17 + 18",
+  sectionTownshipRange: "SEC 04 / TWP 44 / RNG 23 of Lee County, Florida",
+  propertyId: "04-44-23-C4-03795.0170",
+  escrowName: "Landsel Title Agency, Inc.",
+  escrowContact: "Amanda Wilkins",
+  escrowAddress: "3208 Chiquita Blvd S #215, Cape Coral, FL 33914",
+  escrowPhone: "239.205.6373 Ext. 105",
+  escrowEmail: "awilkins@landsel.com",
+  initialDeposit: 2000,
+  depositDueDays: 3
+};
 
 const schemas = {
   properties: {
@@ -225,6 +242,17 @@ const seedData = {
     { id: "c1", subject: "Renewal interest", contact: "Nina Patel", property: "Harbor Point 204", channel: "Email", date: "2026-05-25", status: "Needs follow-up", notes: "Asked for renewal options with no rent increase if possible." },
     { id: "c2", subject: "HVAC appointment confirmed", contact: "CoolAir Pros", property: "Lakeview Townhome", channel: "Phone", date: "2026-05-26", status: "Logged", notes: "Vendor will call tenant 30 minutes ahead." },
     { id: "c3", subject: "May rent receipt", contact: "Avery Jordan", property: "Bayview Bungalow", channel: "Portal", date: "2026-05-01", status: "Closed", notes: "Receipt sent automatically." }
+  ],
+  contracts: [
+    {
+      id: "contract-sample",
+      buyer: contractDefaults.sampleBuyer,
+      price: 31000,
+      initialDeposit: 2000,
+      acceptanceDate: "2026-05-29",
+      closingDate: "2026-06-22",
+      createdAt: "2026-06-01"
+    }
   ]
 };
 
@@ -311,17 +339,27 @@ function renderMetrics() {
 
 function renderSection() {
   const isDashboard = activeSection === "dashboard";
+  const isContracts = activeSection === "contracts";
   const schema = schemas[activeSection];
 
-  els.pageTitle.textContent = isDashboard ? "Dashboard" : schema.title;
-  els.sectionTitle.textContent = isDashboard ? "Dashboard" : schema.title;
-  els.sectionSubtitle.textContent = isDashboard ? "Current portfolio health and upcoming work." : schema.subtitle;
-  els.addButton.style.display = isDashboard ? "none" : "inline-flex";
-  els.addLabel.textContent = isDashboard ? "Add record" : schema.addLabel;
+  els.pageTitle.textContent = isDashboard ? "Dashboard" : isContracts ? "Contracts" : schema.title;
+  els.sectionTitle.textContent = isDashboard ? "Dashboard" : isContracts ? "Land contract generator" : schema.title;
+  els.sectionSubtitle.textContent = isDashboard
+    ? "Current portfolio health and upcoming work."
+    : isContracts
+      ? "Create a print-ready vacant land contract draft from the sample defaults."
+      : schema.subtitle;
+  els.addButton.style.display = isDashboard || isContracts ? "none" : "inline-flex";
+  els.addLabel.textContent = isDashboard || isContracts ? "Add record" : schema.addLabel;
   els.filterRow.innerHTML = "";
 
   if (isDashboard) {
     renderDashboard();
+    return;
+  }
+
+  if (isContracts) {
+    renderContracts();
     return;
   }
 
@@ -380,6 +418,174 @@ function renderDashboard() {
         </div>
       </section>
     </div>
+  `;
+}
+
+function renderContracts() {
+  const latest = state.contracts?.[state.contracts.length - 1] || {
+    buyer: "",
+    price: "",
+    initialDeposit: contractDefaults.initialDeposit,
+    acceptanceDate: todayInputValue(),
+    closingDate: addDaysInputValue(21)
+  };
+
+  els.contentArea.innerHTML = `
+    <div class="contract-builder">
+      <section class="contract-panel">
+        <h3>Contract inputs</h3>
+        <form class="contract-form" id="contractForm">
+          <div class="form-grid">
+            <div class="field">
+              <label for="contractBuyer">Buyer name</label>
+              <input id="contractBuyer" name="buyer" type="text" value="${escapeHtml(latest.buyer)}" required>
+            </div>
+            <div class="field">
+              <label for="contractPrice">Purchase price</label>
+              <input id="contractPrice" name="price" type="number" min="0" step="100" value="${escapeHtml(latest.price)}" required>
+            </div>
+            <div class="field">
+              <label for="contractDeposit">Initial deposit</label>
+              <input id="contractDeposit" name="initialDeposit" type="number" min="0" step="100" value="${escapeHtml(latest.initialDeposit || contractDefaults.initialDeposit)}">
+            </div>
+            <div class="field">
+              <label for="contractAcceptance">Acceptance deadline</label>
+              <input id="contractAcceptance" name="acceptanceDate" type="date" value="${escapeHtml(latest.acceptanceDate || todayInputValue())}">
+            </div>
+            <div class="field">
+              <label for="contractClosing">Closing date</label>
+              <input id="contractClosing" name="closingDate" type="date" value="${escapeHtml(latest.closingDate || addDaysInputValue(21))}">
+            </div>
+          </div>
+          <div class="contract-actions">
+            <button class="primary-button" type="submit">
+              <svg class="icon" aria-hidden="true"><use href="#icon-file"></use></svg>
+              Generate draft
+            </button>
+            <button class="ghost-button" type="button" data-action="print-contract">
+              <svg class="icon" aria-hidden="true"><use href="#icon-file"></use></svg>
+              Print / Save PDF
+            </button>
+          </div>
+        </form>
+
+        <div class="default-box">
+          <h3>Defaults from sample</h3>
+          <div class="detail-list">
+            <div class="detail-row"><span>Seller</span><span>${escapeHtml(contractDefaults.seller)}</span></div>
+            <div class="detail-row"><span>Property</span><span>${escapeHtml(contractDefaults.propertyAddress)}</span></div>
+            <div class="detail-row"><span>Escrow agent</span><span>${escapeHtml(contractDefaults.escrowName)}</span></div>
+            <div class="detail-row"><span>Escrow contact</span><span>${escapeHtml(contractDefaults.escrowContact)}</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="contract-preview-wrap">
+        ${contractDraft(latest)}
+      </section>
+    </div>
+  `;
+}
+
+function saveContractDraft(event) {
+  event.preventDefault();
+  const form = event.target;
+  const data = Object.fromEntries(new FormData(form).entries());
+  const draft = {
+    id: crypto.randomUUID(),
+    buyer: data.buyer.trim(),
+    price: Number(data.price || 0),
+    initialDeposit: Number(data.initialDeposit || contractDefaults.initialDeposit),
+    acceptanceDate: data.acceptanceDate || todayInputValue(),
+    closingDate: data.closingDate || addDaysInputValue(21),
+    createdAt: todayInputValue()
+  };
+
+  state.contracts = [...(state.contracts || []), draft];
+  saveState();
+  renderContracts();
+}
+
+function contractDraft(contract) {
+  const price = Number(contract.price || 0);
+  const deposit = Number(contract.initialDeposit || contractDefaults.initialDeposit);
+  const balance = Math.max(price - deposit, 0);
+  const buyer = contract.buyer || "[Buyer name]";
+
+  return `
+    <article class="contract-preview" id="contractPreview">
+      <div class="contract-watermark">Draft for review</div>
+      <header class="contract-doc-head">
+        <div>
+          <p class="eyebrow">Vacant land contract draft</p>
+          <h2>${escapeHtml(contractDefaults.propertyAddress)}</h2>
+        </div>
+        <div class="contract-id">Generated ${dateLabel(contract.createdAt || todayInputValue())}</div>
+      </header>
+
+      <p class="contract-disclaimer">
+        This draft uses defaults read from the provided sample contract. It is intended for preparation and review, not as legal advice or a substitute for the official form.
+      </p>
+
+      <div class="contract-clause">
+        <strong>1. Sale and purchase.</strong>
+        <p>${escapeHtml(contractDefaults.seller)} ("Seller") and ${escapeHtml(buyer)} ("Buyer") agree to sell and buy the property described below on the terms in this draft.</p>
+      </div>
+
+      <div class="contract-grid">
+        <div><span>Property address</span><strong>${escapeHtml(contractDefaults.propertyAddress)}</strong></div>
+        <div><span>Legal description</span><strong>${escapeHtml(contractDefaults.legalDescription)}</strong></div>
+        <div><span>Location</span><strong>${escapeHtml(contractDefaults.sectionTownshipRange)}</strong></div>
+        <div><span>Real Property ID</span><strong>${escapeHtml(contractDefaults.propertyId)}</strong></div>
+      </div>
+
+      <div class="contract-clause">
+        <strong>2. Purchase price and deposit.</strong>
+        <table class="contract-table">
+          <tbody>
+            <tr><th>Purchase price</th><td>${money(price)}</td></tr>
+            <tr><th>Initial deposit due within ${contractDefaults.depositDueDays} days after effective date</th><td>${money(deposit)}</td></tr>
+            <tr><th>Balance to close, excluding buyer closing costs and prorations</th><td>${money(balance)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="contract-clause">
+        <strong>3. Escrow agent.</strong>
+        <div class="contract-grid">
+          <div><span>Name</span><strong>${escapeHtml(contractDefaults.escrowName)}</strong></div>
+          <div><span>Contact</span><strong>${escapeHtml(contractDefaults.escrowContact)}</strong></div>
+          <div><span>Address</span><strong>${escapeHtml(contractDefaults.escrowAddress)}</strong></div>
+          <div><span>Phone</span><strong>${escapeHtml(contractDefaults.escrowPhone)}</strong></div>
+          <div><span>Email</span><strong>${escapeHtml(contractDefaults.escrowEmail)}</strong></div>
+        </div>
+      </div>
+
+      <div class="contract-clause">
+        <strong>4. Key dates.</strong>
+        <table class="contract-table">
+          <tbody>
+            <tr><th>Acceptance deadline</th><td>${dateLabel(contract.acceptanceDate)}</td></tr>
+            <tr><th>Closing date</th><td>${dateLabel(contract.closingDate)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="signature-grid">
+        <div>
+          <span>Buyer</span>
+          <strong>${escapeHtml(buyer)}</strong>
+          <div class="signature-line"></div>
+          <small>Signature / Date</small>
+        </div>
+        <div>
+          <span>Seller</span>
+          <strong>${escapeHtml(contractDefaults.seller)}</strong>
+          <div class="signature-line"></div>
+          <small>Signature / Date</small>
+        </div>
+      </div>
+    </article>
   `;
 }
 
@@ -542,6 +748,16 @@ function daysUntil(value) {
   return `${days} days`;
 }
 
+function todayInputValue() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addDaysInputValue(days) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
 function truncate(value = "", length = 32) {
   return value.length > length ? `${value.slice(0, length - 1)}...` : value || "None";
 }
@@ -576,6 +792,13 @@ els.contentArea.addEventListener("click", (event) => {
 
   if (button.dataset.action === "edit") openRecordDialog(button.dataset.id);
   if (button.dataset.action === "delete") deleteRecord(button.dataset.id);
+  if (button.dataset.action === "print-contract") window.print();
+});
+
+els.contentArea.addEventListener("submit", (event) => {
+  if (event.target.id === "contractForm") {
+    saveContractDraft(event);
+  }
 });
 
 els.addButton.addEventListener("click", () => openRecordDialog());
