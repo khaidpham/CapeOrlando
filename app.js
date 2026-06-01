@@ -17,6 +17,10 @@ const contractDefaults = {
   sampleBuyer: "Tra My Land, LLC",
   propertyAddress: "2033 NW 9th TER, Cape Coral, FL 33993",
   legalDescription: "CAPE CORAL UNIT 52 BLK 3795 PB 19 PG 51 LOTS 17 + 18",
+  section: "04",
+  township: "44",
+  range: "23",
+  county: "Lee",
   sectionTownshipRange: "SEC 04 / TWP 44 / RNG 23 of Lee County, Florida",
   propertyId: "04-44-23-C4-03795.0170",
   escrowName: "Landsel Title Agency, Inc.",
@@ -26,6 +30,39 @@ const contractDefaults = {
   escrowEmail: "awilkins@landsel.com",
   initialDeposit: 2000,
   depositDueDays: 3
+};
+
+const contractTemplate = {
+  url: "assets/vacant-land-contract-2026.pdf",
+  fields: {
+    seller: "text_1enan",
+    buyer: "text_2dgam",
+    propertyAddress: "text_3mnym",
+    legalDescription: "text_4hpgt",
+    legalDescription2: "text_5uwht",
+    legalDescription3: "text_6uxzp",
+    legalDescription4: "text_7rnlw",
+    legalDescription5: "text_8ivmr",
+    section: "text_9trdb",
+    township: "text_10xcwb",
+    range: "text_11kdus",
+    county: "text_12xjvp",
+    propertyId: "text_13gsqo",
+    purchasePrice: "text_16grdw",
+    escrowName: "text_17mjev",
+    escrowContact: "text_18ezjq",
+    escrowAddress: "text_19arbb",
+    escrowPhone: "text_20oxyx",
+    escrowEmail: "text_21el",
+    depositDueDays: "text_22dgln",
+    initialDeposit: "text_28ezwn",
+    balanceToClose: "text_32uwyq",
+    acceptanceDate: "text_34yeni",
+    closingDate: "text_35brqq",
+    initialDepositToEscrow: "checkbox_185cimt",
+    unitLot: "checkbox_181meaq"
+  },
+  checkedValue: "/Yes_figa"
 };
 
 const schemas = {
@@ -250,6 +287,10 @@ const seedData = {
       price: 31000,
       propertyAddress: contractDefaults.propertyAddress,
       legalDescription: contractDefaults.legalDescription,
+      section: contractDefaults.section,
+      township: contractDefaults.township,
+      range: contractDefaults.range,
+      county: contractDefaults.county,
       sectionTownshipRange: contractDefaults.sectionTownshipRange,
       propertyId: contractDefaults.propertyId,
       initialDeposit: 2000,
@@ -431,6 +472,10 @@ function renderContracts() {
     price: "",
     propertyAddress: contractDefaults.propertyAddress,
     legalDescription: contractDefaults.legalDescription,
+    section: contractDefaults.section,
+    township: contractDefaults.township,
+    range: contractDefaults.range,
+    county: contractDefaults.county,
     sectionTownshipRange: contractDefaults.sectionTownshipRange,
     propertyId: contractDefaults.propertyId,
     initialDeposit: contractDefaults.initialDeposit,
@@ -461,13 +506,29 @@ function renderContracts() {
               <input id="contractPropertyId" name="propertyId" type="text" value="${escapeHtml(contractValue(latest, "propertyId"))}">
               <span class="field-help">Use this for MLS or county lookup when connected to a property data source.</span>
             </div>
-            <div class="field">
-              <label for="contractLocation">Location</label>
-              <input id="contractLocation" name="sectionTownshipRange" type="text" value="${escapeHtml(contractValue(latest, "sectionTownshipRange"))}">
-            </div>
             <div class="field full">
               <label for="contractLegalDescription">Legal description</label>
               <textarea id="contractLegalDescription" name="legalDescription">${escapeHtml(contractValue(latest, "legalDescription"))}</textarea>
+            </div>
+            <div class="field">
+              <label for="contractSection">Section</label>
+              <input id="contractSection" name="section" type="text" value="${escapeHtml(contractValue(latest, "section"))}">
+            </div>
+            <div class="field">
+              <label for="contractTownship">Township</label>
+              <input id="contractTownship" name="township" type="text" value="${escapeHtml(contractValue(latest, "township"))}">
+            </div>
+            <div class="field">
+              <label for="contractRange">Range</label>
+              <input id="contractRange" name="range" type="text" value="${escapeHtml(contractValue(latest, "range"))}">
+            </div>
+            <div class="field">
+              <label for="contractCounty">County</label>
+              <input id="contractCounty" name="county" type="text" value="${escapeHtml(contractValue(latest, "county"))}">
+            </div>
+            <div class="field full">
+              <label for="contractLocation">Location summary</label>
+              <input id="contractLocation" name="sectionTownshipRange" type="text" value="${escapeHtml(locationSummary(latest))}">
             </div>
             <div class="field">
               <label for="contractDeposit">Initial deposit</label>
@@ -490,6 +551,10 @@ function renderContracts() {
             <button class="ghost-button" type="button" data-action="print-contract">
               <svg class="icon" aria-hidden="true"><use href="#icon-file"></use></svg>
               Print / Save PDF
+            </button>
+            <button class="ghost-button" type="button" data-action="download-template-contract">
+              <svg class="icon" aria-hidden="true"><use href="#icon-file"></use></svg>
+              Download template PDF
             </button>
           </div>
         </form>
@@ -514,25 +579,37 @@ function renderContracts() {
 
 function saveContractDraft(event) {
   event.preventDefault();
-  const form = event.target;
+  const draft = draftFromContractForm(event.target);
+
+  state.contracts = [...(state.contracts || []), draft];
+  saveState();
+  renderContracts();
+}
+
+function draftFromContractForm(form) {
   const data = Object.fromEntries(new FormData(form).entries());
-  const draft = {
+  const section = data.section.trim() || contractDefaults.section;
+  const township = data.township.trim() || contractDefaults.township;
+  const range = data.range.trim() || contractDefaults.range;
+  const county = data.county.trim() || contractDefaults.county;
+
+  return {
     id: crypto.randomUUID(),
     buyer: data.buyer.trim(),
     price: Number(data.price || 0),
     propertyAddress: data.propertyAddress.trim() || contractDefaults.propertyAddress,
     legalDescription: data.legalDescription.trim() || contractDefaults.legalDescription,
-    sectionTownshipRange: data.sectionTownshipRange.trim() || contractDefaults.sectionTownshipRange,
+    section,
+    township,
+    range,
+    county,
+    sectionTownshipRange: data.sectionTownshipRange.trim() || makeLocationSummary(section, township, range, county),
     propertyId: data.propertyId.trim() || contractDefaults.propertyId,
     initialDeposit: Number(data.initialDeposit || contractDefaults.initialDeposit),
     acceptanceDate: data.acceptanceDate || todayInputValue(),
     closingDate: data.closingDate || addDaysInputValue(21),
     createdAt: todayInputValue()
   };
-
-  state.contracts = [...(state.contracts || []), draft];
-  saveState();
-  renderContracts();
 }
 
 function contractDraft(contract) {
@@ -542,7 +619,7 @@ function contractDraft(contract) {
   const buyer = contract.buyer || "[Buyer name]";
   const propertyAddress = contractValue(contract, "propertyAddress");
   const legalDescription = contractValue(contract, "legalDescription");
-  const sectionTownshipRange = contractValue(contract, "sectionTownshipRange");
+  const sectionTownshipRange = locationSummary(contract);
   const propertyId = contractValue(contract, "propertyId");
 
   return `
@@ -622,8 +699,138 @@ function contractDraft(contract) {
   `;
 }
 
+async function downloadTemplateContract() {
+  const form = document.querySelector("#contractForm");
+  if (!form) return;
+  if (!window.PDFLib) {
+    alert("The PDF generator did not load. Refresh the page and try again.");
+    return;
+  }
+
+  const draft = draftFromContractForm(form);
+  const bytes = await fillTemplatePdf(draft);
+  const blob = new Blob([bytes], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = safeFileName(`${draft.propertyAddress} - vacant land contract.pdf`);
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+async function fillTemplatePdf(contract) {
+  const { PDFDocument } = window.PDFLib;
+  const templateBytes = await fetch(contractTemplate.url).then((response) => {
+    if (!response.ok) throw new Error("Unable to load contract template PDF.");
+    return response.arrayBuffer();
+  });
+  const pdfDoc = await PDFDocument.load(templateBytes);
+  const form = pdfDoc.getForm();
+  const price = Number(contract.price || 0);
+  const deposit = Number(contract.initialDeposit || contractDefaults.initialDeposit);
+  const balance = Math.max(price - deposit, 0);
+
+  setPdfText(form, contractTemplate.fields.seller, contractDefaults.seller);
+  setPdfText(form, contractTemplate.fields.buyer, contract.buyer);
+  setPdfText(form, contractTemplate.fields.propertyAddress, contract.propertyAddress);
+  setLongLegalDescription(form, contract.legalDescription);
+  setPdfText(form, contractTemplate.fields.section, contract.section);
+  setPdfText(form, contractTemplate.fields.township, contract.township);
+  setPdfText(form, contractTemplate.fields.range, contract.range);
+  setPdfText(form, contractTemplate.fields.county, contract.county);
+  setPdfText(form, contractTemplate.fields.propertyId, contract.propertyId);
+  setPdfText(form, contractTemplate.fields.purchasePrice, moneyWithCents(price));
+  setPdfText(form, contractTemplate.fields.escrowName, contractDefaults.escrowName);
+  setPdfText(form, contractTemplate.fields.escrowContact, contractDefaults.escrowContact);
+  setPdfText(form, contractTemplate.fields.escrowAddress, contractDefaults.escrowAddress);
+  setPdfText(form, contractTemplate.fields.escrowPhone, contractDefaults.escrowPhone);
+  setPdfText(form, contractTemplate.fields.escrowEmail, contractDefaults.escrowEmail);
+  setPdfText(form, contractTemplate.fields.depositDueDays, String(contractDefaults.depositDueDays));
+  setPdfText(form, contractTemplate.fields.initialDeposit, moneyWithCents(deposit));
+  setPdfText(form, contractTemplate.fields.balanceToClose, moneyWithCents(balance));
+  setPdfText(form, contractTemplate.fields.acceptanceDate, dateInputToContractDate(contract.acceptanceDate));
+  setPdfText(form, contractTemplate.fields.closingDate, `ON OR BEFORE ${dateInputToContractDate(contract.closingDate)}`);
+  setPdfRadio(form, contractTemplate.fields.initialDepositToEscrow);
+  setPdfRadio(form, contractTemplate.fields.unitLot);
+  form.updateFieldAppearances();
+  return pdfDoc.save();
+}
+
+function setPdfText(form, fieldName, value) {
+  const field = form.getTextField(fieldName);
+  field.setText(String(value || ""));
+}
+
+function setPdfRadio(form, fieldName) {
+  try {
+    form.getRadioGroup(fieldName).select(contractTemplate.checkedValue);
+  } catch {
+    try {
+      form.getCheckBox(fieldName).check();
+    } catch {
+      // Some Form Simplicity checkbox exports are single-option radio groups.
+    }
+  }
+}
+
+function setLongLegalDescription(form, value) {
+  const lines = wrapText(String(value || ""), 62, 5);
+  const fields = [
+    contractTemplate.fields.legalDescription,
+    contractTemplate.fields.legalDescription2,
+    contractTemplate.fields.legalDescription3,
+    contractTemplate.fields.legalDescription4,
+    contractTemplate.fields.legalDescription5
+  ];
+
+  fields.forEach((fieldName, index) => setPdfText(form, fieldName, lines[index] || ""));
+}
+
+function wrapText(value, maxLength, maxLines) {
+  const words = value.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = "";
+
+  words.forEach((word) => {
+    const next = line ? `${line} ${word}` : word;
+    if (next.length > maxLength && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = next;
+    }
+  });
+
+  if (line) lines.push(line);
+  if (lines.length > maxLines) {
+    lines[maxLines - 1] = `${lines.slice(maxLines - 1).join(" ")}`;
+  }
+  return lines.slice(0, maxLines);
+}
+
+function dateInputToContractDate(value) {
+  if (!value) return "";
+  const [year, month, day] = value.split("-");
+  return `${month}/${day}/${year}`;
+}
+
 function contractValue(contract, key) {
   return contract?.[key] || contractDefaults[key] || "";
+}
+
+function locationSummary(contract) {
+  return contract?.sectionTownshipRange || makeLocationSummary(
+    contractValue(contract, "section"),
+    contractValue(contract, "township"),
+    contractValue(contract, "range"),
+    contractValue(contract, "county")
+  );
+}
+
+function makeLocationSummary(section, township, range, county) {
+  return `SEC ${section} / TWP ${township} / RNG ${range} of ${county} County, Florida`;
 }
 
 function renderRecords(schema) {
@@ -768,6 +975,11 @@ function money(value) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(number);
 }
 
+function moneyWithCents(value) {
+  const number = Number(value || 0);
+  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(number);
+}
+
 function dateLabel(value) {
   if (!value) return "None";
   const date = new Date(`${value}T00:00:00`);
@@ -808,6 +1020,10 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function safeFileName(value) {
+  return String(value || "contract.pdf").replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").trim();
+}
+
 els.nav.addEventListener("click", (event) => {
   const button = event.target.closest("[data-section]");
   if (!button) return;
@@ -830,6 +1046,7 @@ els.contentArea.addEventListener("click", (event) => {
   if (button.dataset.action === "edit") openRecordDialog(button.dataset.id);
   if (button.dataset.action === "delete") deleteRecord(button.dataset.id);
   if (button.dataset.action === "print-contract") window.print();
+  if (button.dataset.action === "download-template-contract") downloadTemplateContract();
 });
 
 els.contentArea.addEventListener("submit", (event) => {
