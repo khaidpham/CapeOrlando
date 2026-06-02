@@ -1,7 +1,4 @@
 const STORAGE_KEY = "cape-orlando-property-manager";
-const AUTH_KEY = "cape-orlando-auth-session";
-const OTP_KEY = "cape-orlando-otp-challenge";
-const OTP_TTL_MS = 10 * 60 * 1000;
 
 const sections = [
   { id: "dashboard", label: "Dashboard", icon: "building" },
@@ -524,20 +521,8 @@ let state = loadState();
 let activeSection = "dashboard";
 let activeFilter = "All";
 let editingId = null;
-let pendingEmail = "";
 
 const els = {
-  appShell: document.querySelector("#appShell"),
-  loginShell: document.querySelector("#loginShell"),
-  emailLoginForm: document.querySelector("#emailLoginForm"),
-  otpLoginForm: document.querySelector("#otpLoginForm"),
-  loginEmail: document.querySelector("#loginEmail"),
-  otpCode: document.querySelector("#otpCode"),
-  otpPrompt: document.querySelector("#otpPrompt"),
-  demoOtpPanel: document.querySelector("#demoOtpPanel"),
-  loginMessage: document.querySelector("#loginMessage"),
-  resendOtp: document.querySelector("#resendOtp"),
-  signOutButton: document.querySelector("#signOutButton"),
   nav: document.querySelector("#sectionNav"),
   pageTitle: document.querySelector("#pageTitle"),
   sectionTitle: document.querySelector("#sectionTitle"),
@@ -571,164 +556,6 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-function initApp() {
-  if (currentAuthSession()) {
-    showApp();
-  } else {
-    showLogin();
-  }
-}
-
-function currentAuthSession() {
-  const stored = localStorage.getItem(AUTH_KEY);
-  if (!stored) return null;
-
-  try {
-    const session = JSON.parse(stored);
-    if (!session.email || Number(session.expiresAt) < Date.now()) {
-      localStorage.removeItem(AUTH_KEY);
-      return null;
-    }
-    return session;
-  } catch {
-    localStorage.removeItem(AUTH_KEY);
-    return null;
-  }
-}
-
-function showApp() {
-  els.loginShell.classList.add("hidden");
-  els.appShell.classList.remove("hidden");
-  render();
-}
-
-function showLogin() {
-  els.appShell.classList.add("hidden");
-  els.loginShell.classList.remove("hidden");
-  els.emailLoginForm.classList.remove("hidden");
-  els.otpLoginForm.classList.add("hidden");
-  setLoginMessage("");
-}
-
-async function requestOtp(event) {
-  event.preventDefault();
-  pendingEmail = new FormData(els.emailLoginForm).get("email").trim().toLowerCase();
-  if (!pendingEmail) return;
-  await createOtpChallenge(pendingEmail);
-}
-
-async function resendCurrentOtp() {
-  if (!pendingEmail) {
-    const challenge = currentOtpChallenge();
-    pendingEmail = challenge?.email || "";
-  }
-  if (pendingEmail) await createOtpChallenge(pendingEmail);
-}
-
-async function createOtpChallenge(email) {
-  const code = generateOtpCode();
-  const challenge = {
-    email,
-    code,
-    expiresAt: Date.now() + OTP_TTL_MS,
-    attempts: 0
-  };
-  sessionStorage.setItem(OTP_KEY, JSON.stringify(challenge));
-  await sendOtpEmail(email, code);
-  showOtpStep(email, code);
-}
-
-async function sendOtpEmail(email, code) {
-  // GitHub Pages cannot securely send email by itself. Replace this hook
-  // with a backend/email-service call when one is available.
-  return { delivered: false, email, code };
-}
-
-function showOtpStep(email, code) {
-  els.emailLoginForm.classList.add("hidden");
-  els.otpLoginForm.classList.remove("hidden");
-  els.otpPrompt.textContent = `Enter the 6-digit code for ${email}.`;
-  els.demoOtpPanel.hidden = false;
-  els.demoOtpPanel.innerHTML = `
-    <strong>Demo OTP delivery</strong>
-    <span>${escapeHtml(code)}</span>
-    <small>Static hosting cannot send email directly. Wire sendOtpEmail() to an email backend for production delivery.</small>
-  `;
-  setLoginMessage("OTP generated. It expires in 10 minutes.");
-  els.otpCode.value = "";
-  els.otpCode.focus();
-}
-
-function verifyOtp(event) {
-  event.preventDefault();
-  const challenge = currentOtpChallenge();
-  const entered = new FormData(els.otpLoginForm).get("otp").trim();
-
-  if (!challenge) {
-    setLoginMessage("The code expired. Request a new OTP.");
-    els.emailLoginForm.classList.remove("hidden");
-    els.otpLoginForm.classList.add("hidden");
-    return;
-  }
-
-  if (challenge.attempts >= 5) {
-    sessionStorage.removeItem(OTP_KEY);
-    setLoginMessage("Too many attempts. Request a new OTP.");
-    els.emailLoginForm.classList.remove("hidden");
-    els.otpLoginForm.classList.add("hidden");
-    return;
-  }
-
-  if (entered !== challenge.code) {
-    challenge.attempts += 1;
-    sessionStorage.setItem(OTP_KEY, JSON.stringify(challenge));
-    setLoginMessage("That code did not match. Try again.");
-    return;
-  }
-
-  localStorage.setItem(AUTH_KEY, JSON.stringify({
-    email: challenge.email,
-    expiresAt: Date.now() + 24 * 60 * 60 * 1000
-  }));
-  sessionStorage.removeItem(OTP_KEY);
-  pendingEmail = "";
-  showApp();
-}
-
-function currentOtpChallenge() {
-  const stored = sessionStorage.getItem(OTP_KEY);
-  if (!stored) return null;
-
-  try {
-    const challenge = JSON.parse(stored);
-    if (Number(challenge.expiresAt) < Date.now()) {
-      sessionStorage.removeItem(OTP_KEY);
-      return null;
-    }
-    return challenge;
-  } catch {
-    sessionStorage.removeItem(OTP_KEY);
-    return null;
-  }
-}
-
-function generateOtpCode() {
-  const values = new Uint32Array(1);
-  crypto.getRandomValues(values);
-  return String(values[0] % 1000000).padStart(6, "0");
-}
-
-function signOut() {
-  localStorage.removeItem(AUTH_KEY);
-  sessionStorage.removeItem(OTP_KEY);
-  pendingEmail = "";
-  showLogin();
-}
-
-function setLoginMessage(message) {
-  els.loginMessage.textContent = message;
 }
 
 function render() {
@@ -1564,14 +1391,10 @@ els.search.addEventListener("input", renderSection);
 els.form.addEventListener("submit", saveRecord);
 els.closeDialog.addEventListener("click", () => els.dialog.close());
 els.cancelDialog.addEventListener("click", () => els.dialog.close());
-els.emailLoginForm.addEventListener("submit", requestOtp);
-els.otpLoginForm.addEventListener("submit", verifyOtp);
-els.resendOtp.addEventListener("click", resendCurrentOtp);
-els.signOutButton.addEventListener("click", signOut);
 els.seedButton.addEventListener("click", () => {
   state = structuredClone(seedData);
   saveState();
   render();
 });
 
-initApp();
+render();

@@ -7,56 +7,7 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <section class="login-shell" id="loginShell">
-      <div class="login-panel">
-        <div class="brand login-brand">
-          <div class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32" role="img">
-              <path d="M6 14.2 16 6l10 8.2v12.3a1.5 1.5 0 0 1-1.5 1.5h-5.3v-7.9h-6.4V28H7.5A1.5 1.5 0 0 1 6 26.5V14.2Z"></path>
-              <path d="M10.3 12.6v4.6h11.4v-4.6L16 8l-5.7 4.6Z"></path>
-            </svg>
-          </div>
-          <div>
-            <strong>Cape Orlando</strong>
-            <span>Secure property workspace</span>
-          </div>
-        </div>
-
-        <form class="login-form" id="emailLoginForm">
-          <div>
-            <p class="eyebrow">Email sign in</p>
-            <h1>Enter your email</h1>
-            <p class="login-copy">We will generate a one-time code for this browser session.</p>
-          </div>
-          <div class="field full">
-            <label for="loginEmail">Email address</label>
-            <input id="loginEmail" name="email" type="email" autocomplete="email" required>
-          </div>
-          <button class="primary-button" type="submit">Send OTP code</button>
-        </form>
-
-        <form class="login-form hidden" id="otpLoginForm">
-          <div>
-            <p class="eyebrow">Verification</p>
-            <h1>Enter your code</h1>
-            <p class="login-copy" id="otpPrompt">Check your email for the 6-digit OTP.</p>
-          </div>
-          <div class="field full">
-            <label for="otpCode">OTP code</label>
-            <input id="otpCode" name="otp" type="text" inputmode="numeric" autocomplete="one-time-code" minlength="6" maxlength="6" required>
-          </div>
-          <div class="demo-otp" id="demoOtpPanel" hidden></div>
-          <div class="login-actions">
-            <button class="primary-button" type="submit">Verify and continue</button>
-            <button class="ghost-button" id="resendOtp" type="button">Resend code</button>
-          </div>
-        </form>
-
-        <p class="login-message" id="loginMessage" role="status"></p>
-      </div>
-    </section>
-
-    <div class="app-shell hidden" id="appShell">
+    <div class="app-shell">
       <aside class="sidebar" aria-label="Workspace navigation">
         <div class="brand">
           <div class="brand-mark" aria-hidden="true">
@@ -114,7 +65,6 @@
               <svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg>
               <span id="addLabel">Add record</span>
             </button>
-            <button class="ghost-button" id="signOutButton" type="button">Sign out</button>
           </div>
         </header>
 
