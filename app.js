@@ -807,9 +807,9 @@ function renderContracts() {
               <svg class="icon" aria-hidden="true"><use href="#icon-file"></use></svg>
               Print / Save PDF
             </button>
-            <button class="ghost-button" type="button" data-action="download-template-contract">
+            <button class="primary-button" type="button" data-action="download-template-contract">
               <svg class="icon" aria-hidden="true"><use href="#icon-file"></use></svg>
-              Download template PDF
+              Download Contract PDF
             </button>
           </div>
         </form>
